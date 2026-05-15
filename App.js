@@ -7,6 +7,7 @@ export default function App() {
   const [weather, setWeather] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [cityName, setCityName] = useState('');
 
   const fetchWeatherData = async (latitude, longitude) => {
     try {
@@ -38,6 +39,17 @@ export default function App() {
 
       let loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       setLocation(loc);
+
+      let geocode = await Location.reverseGeocodeAsync({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude
+      });
+
+      if (geocode.length > 0) {
+        setCityName(geocode[0].city || geocode[0].subregion || 'Nieznana miejscowość');
+      } else {
+        setCityName('Nieznana miejscowość');
+      }
       
       await fetchWeatherData(loc.coords.latitude, loc.coords.longitude);
     } catch (error) {
@@ -79,9 +91,8 @@ export default function App() {
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Pogoda „Tu i Teraz”</Text>
         
-        {}
         <View style={styles.currentCard}>
-          <Text style={styles.cardHeader}>Aktualne warunki dla Twojej pozycji</Text>
+          <Text style={styles.cardHeader}>Aktualne warunki dla: {cityName}</Text>
           <Text style={styles.temp}>{weather?.current?.temperature_2m}°C</Text>
           
           <View style={styles.detailsRow}>
@@ -94,7 +105,6 @@ export default function App() {
           </Text>
         </View>
 
-        {}
         <Text style={styles.sectionTitle}>Prognoza godzinowa (Najbliższe 24h)</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.hourlyScroll}>
           {hourlyTimes.map((time, index) => {
@@ -109,7 +119,6 @@ export default function App() {
           })}
         </ScrollView>
 
-        {}
         <TouchableOpacity style={styles.refreshButton} onPress={initApp}>
           <Text style={styles.buttonText}>🔄 Odśwież dane</Text>
         </TouchableOpacity>
