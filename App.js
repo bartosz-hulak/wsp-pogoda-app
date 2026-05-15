@@ -8,7 +8,6 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Funkcja pobierająca dane z publicznego API Open-Meteo
   const fetchWeatherData = async (latitude, longitude) => {
     try {
       const response = await fetch(
@@ -26,12 +25,10 @@ export default function App() {
     }
   };
 
-  // Główna funkcja inicjalizująca: uprawnienia + pozycja GPS
   const initApp = async () => {
     setLoading(true);
     setErrorMsg(null);
     try {
-      // 1. Obsługa uprawnień do lokalizacji (Kryterium oceny: Odmowa uprawnień)
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Odmówiono dostępu do lokalizacji. Aplikacja wymaga uprawnień GPS do poprawnego działania.');
@@ -39,11 +36,9 @@ export default function App() {
         return;
       }
 
-      // 2. Pobranie współrzędnych urządzenia
       let loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       setLocation(loc);
       
-      // 3. Wywołanie API z pobranymi współrzędnymi
       await fetchWeatherData(loc.coords.latitude, loc.coords.longitude);
     } catch (error) {
       setErrorMsg('Wystąpił błąd podczas próby odczytu lokalizacji z urządzenia.');
@@ -55,7 +50,6 @@ export default function App() {
     initApp();
   }, []);
 
-  // Stan ładowania aplikacji
   if (loading) {
     return (
       <View style={styles.center}>
@@ -65,7 +59,6 @@ export default function App() {
     );
   }
 
-  // Ekran błędu / odmowy uprawnień (Kryterium oceny: Obsługa błędów)
   if (errorMsg) {
     return (
       <View style={styles.center}>
@@ -77,7 +70,6 @@ export default function App() {
     );
   }
 
-  // Wycięcie dokładnie 24 kolejnych rekordów godzinowych (zgodnie z wymaganiem zadania)
   const hourlyTimes = weather?.hourly?.time?.slice(0, 24) || [];
   const hourlyTemps = weather?.hourly?.temperature_2m?.slice(0, 24) || [];
   const hourlyPrecip = weather?.hourly?.precipitation_probability?.slice(0, 24) || [];
@@ -87,7 +79,7 @@ export default function App() {
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Pogoda „Tu i Teraz”</Text>
         
-        {/* Główna karta z aktualną pogodą */}
+        {}
         <View style={styles.currentCard}>
           <Text style={styles.cardHeader}>Aktualne warunki dla Twojej pozycji</Text>
           <Text style={styles.temp}>{weather?.current?.temperature_2m}°C</Text>
@@ -102,7 +94,7 @@ export default function App() {
           </Text>
         </View>
 
-        {/* Sekcja prognozy 24-godzinnej */}
+        {}
         <Text style={styles.sectionTitle}>Prognoza godzinowa (Najbliższe 24h)</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.hourlyScroll}>
           {hourlyTimes.map((time, index) => {
@@ -117,7 +109,7 @@ export default function App() {
           })}
         </ScrollView>
 
-        {/* Przycisk ręcznego odświeżania (Rozszerzenie funkcjonalne) */}
+        {}
         <TouchableOpacity style={styles.refreshButton} onPress={initApp}>
           <Text style={styles.buttonText}>🔄 Odśwież dane</Text>
         </TouchableOpacity>
